@@ -1,9 +1,5 @@
 #include "entities.h"
-#include "player.h"
-#include "framebuffer.h"
-#include "controller.h"
-#include "text.h"
-#include "backup.h"
+
 
 /**
  * FILE DEFINES BEHAVIOR OF ENEMIES
@@ -27,7 +23,7 @@ int player_hit_enemy(PLAYER* player, ENEMY* enemy) {
     if (y_diff < 0) y_diff *= -1;
 
     if(x_diff <= SPRITE_WIDTH && y_diff <= SPRITE_HEIGHT) {
-        wait(2000000);
+        sleep(2);
         return 1;
     } 
     return 0;

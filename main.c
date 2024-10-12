@@ -6,10 +6,10 @@
  * 
 */
 
-#include "gpio.h"
 
 #include "framebuffer.h"
 #include "image.h"
+#include <stdio.h>
 
 #include "player.h"
 #include "entities.h"
@@ -173,7 +173,7 @@ int pause_menu() {
     drawImage(P_WIDTH / 4, P_HEIGHT / 4, PAUSE);
 
     // wait one second
-    wait(1);
+    sleep(1);
 
     // wait for input
     while (1) {
@@ -1012,7 +1012,7 @@ int level_3(){
     
     // level loop
 	while (1) {
-        time(state.clock);
+        time(&state.clock);
         // decrement time counter every second
         if (state.clock >= state.time_check) {
             --state.time;
@@ -2066,7 +2066,8 @@ int level_4()
             }
         }
 
-
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
         // check for vine climbing
         for (int i = 0; i < number_vines; ++i)
         {
@@ -2177,7 +2178,7 @@ int main()
     // Initialize GPIO controller, UART and framebuffer
     Init_GPIO();
     uart_init();
-    init_framebuffer();
+    init_framebuffer(surface);
 
     // level complete indicators
     int level_one_done;

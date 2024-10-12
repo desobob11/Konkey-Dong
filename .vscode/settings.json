@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "image.h": "c"
+        "image.h": "c",
+        "player.h": "c",
+        "block.h": "c",
+        "sdl.h": "c"
     }
 }

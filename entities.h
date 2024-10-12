@@ -1,6 +1,9 @@
 #ifndef ENTITIES_H_
 #define ENTITIES_H_
 #include "player.h"
+#include "framebuffer.h"
+#include "text.h"
+#include "backup.h"
 
 #define BORG 0
 #define ENEMY_WIDTH 32

@@ -6,10 +6,10 @@
 */
 
 #include "backup.h"
-#include "image.h"
+
 
 // actual buffer
-unsigned backbuffer[1280][720];
+uint32_t backbuffer[P_WIDTH][P_HEIGHT];
 
 /**
  * Function to draw image to backup frame buffer
@@ -43,8 +43,8 @@ void drawImageBackup(int x, int y, int img_id)
  * 
 */
 void init_backup() {
-    for (int i = 0; i < 1280; ++i) {
-        for (int j = 0; j < 720; ++j) {
+    for (int i = 0; i < P_WIDTH; ++i) {
+        for (int j = 0; j < P_HEIGHT; ++j) {
             backbuffer[i][j] = 0x00000000;
         }
     }
