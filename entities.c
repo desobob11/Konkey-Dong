@@ -23,7 +23,7 @@ int player_hit_enemy(PLAYER* player, ENEMY* enemy) {
     if (y_diff < 0) y_diff *= -1;
 
     if(x_diff <= SPRITE_WIDTH && y_diff <= SPRITE_HEIGHT) {
-        sleep(2);
+        Sleep(2000);
         return 1;
     } 
     return 0;
@@ -417,7 +417,7 @@ int collide_boulder(PLAYER *player, BOULDER *boulder) {
 
     if (x_diff <= SPRITE_WIDTH && y_diff <= SPRITE_HEIGHT)
     {
-        wait(2000000);
+        Sleep(2000);
         return 1;
     }
     return 0;
@@ -475,7 +475,7 @@ int collide_token(PLAYER *player, TOKEN *token) {
     when colliding with vine
 
 */
-int collide_vine(PLAYER* player, VINE* vine) {
+int collide_vine(PLAYER* player, VINE* vine, SDL_Scancode code) {
     int x_diff = player->x - vine->x;
     if (x_diff < 0)
         x_diff *= -1;
@@ -484,7 +484,7 @@ int collide_vine(PLAYER* player, VINE* vine) {
     if (y_diff < 0)
         y_diff *= -1;
 
-    if (x_diff <= SPRITE_WIDTH / 2 && y_diff <= SPRITE_HEIGHT + VINE_HEIGHT && (button_held(BUTTON_UP) || button_held(BUTTON_DOWN)))
+    if (x_diff <= SPRITE_WIDTH / 2 && y_diff <= SPRITE_HEIGHT + VINE_HEIGHT && (code == SDL_SCANCODE_W || SDL_SCANCODE_S))
     {
         return 1;
     }

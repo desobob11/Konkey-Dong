@@ -1,9 +1,7 @@
 #include "player.h"
 #include "framebuffer.h"
-#include "controller.h"
 #include "text.h"
 #include "backup.h"
-
 /**
  * Logic for the player
 */
@@ -101,27 +99,30 @@ void draw_player_up(PLAYER *player)
  * 
  * 
 */
-void move_player(PLAYER* player) {
+void move_player(PLAYER* player, SDL_Scancode code) {
     player->isMoving = 0;
-    if (button_held(BUTTON_UP) && player->y - PLAYER_CLIMB_SPEED > 0 + TEXT_HEIGHT && player->canClimbUp) {
+    if (code == SDL_SCANCODE_W && player->y - PLAYER_CLIMB_SPEED > 0 + TEXT_HEIGHT && player->canClimbUp) {
         draw_player_up(player);
         player->y -= PLAYER_CLIMB_SPEED;
         draw_player(player);
         player->isMoving = 1;
     }
-    if (button_held(BUTTON_DOWN) && player->y + PLAYER_CLIMB_SPEED < P_HEIGHT - SPRITE_HEIGHT && player->canClimbDown) {
+    if (code == SDL_SCANCODE_S && player->y + PLAYER_CLIMB_SPEED < P_HEIGHT - SPRITE_HEIGHT && player->canClimbDown)
+    {
         draw_player_down(player);
         player->y += PLAYER_CLIMB_SPEED;
         draw_player(player);
         player->isMoving = 1;
     }
-    if (button_held(BUTTON_LEFT) && player->x > 0 && player->canMoveLeft) {
+    if (code == SDL_SCANCODE_A && player->x > 0 && player->canMoveLeft)
+    {
         draw_player_left(player);
         player->x -= PLAYER_X_SPEED;
         draw_player(player);
         player->isMoving = 1;
     }
-    if (button_held(BUTTON_RIGHT) && player->x < P_WIDTH - SPRITE_WIDTH && player->canMoveRight) {
+    if (code == SDL_SCANCODE_D && player->x < P_WIDTH - SPRITE_WIDTH && player->canMoveRight)
+    {
         draw_player_right(player);
         player->x += PLAYER_X_SPEED;
         draw_player(player);
@@ -135,6 +136,7 @@ void move_player(PLAYER* player) {
 */
 void gravity(PLAYER* player) {
     if (player->canMoveDown && player->y < P_HEIGHT - SPRITE_HEIGHT && !player->isJumping) {
+
         draw_player_down(player);
         player->y += PLAYER_GRAVITY;
         draw_player(player);
@@ -146,11 +148,11 @@ void gravity(PLAYER* player) {
  * 
 */
 void jump_player(PLAYER* player) {
-    if ((button_held(BUTTON_B) || button_held(BUTTON_A)) && !player->canMoveDown && player->canJump && !player->isJumping) {
-        player->jumpLimit = player->y - JUMP_HEIGHT;
-        player->isJumping = 1;
-
-    }
+    if (!player->canMoveDown && player->canJump && !player->isJumping)
+        {
+            player->jumpLimit = player->y - JUMP_HEIGHT;
+            player->isJumping = 1;
+        }
     else if (player->isJumping) {
         if (player->y <= TEXT_HEIGHT) {
             player->isJumping = 0;
@@ -177,7 +179,7 @@ void jump_player(PLAYER* player) {
 
 int player_fell(PLAYER* player) {
     if (player->y >= P_HEIGHT - (2 * SPRITE_HEIGHT)) {
-        wait(2000000);
+        Sleep(2000);
         return 1;
     }
     return 0;

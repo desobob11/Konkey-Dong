@@ -4,6 +4,9 @@
 #include "framebuffer.h"
 #include "text.h"
 #include "backup.h"
+#include "SDL2/include/SDL2/SDL.h"
+#include <windows.h>
+
 
 #define BORG 0
 #define ENEMY_WIDTH 32
@@ -114,7 +117,7 @@ int collide_boulder(PLAYER* player, BOULDER* boulder);
 int collide_clock(PLAYER *player, CLOCK *clock);
 int collide_token(PLAYER *player, TOKEN *clock);
 void init_banana(BANANA*, int x, int y);
-int collide_vine(PLAYER *player, VINE *vine);
+int collide_vine(PLAYER *player, VINE *vine, SDL_Scancode code);
 void draw_banana(BANANA *banana);
 void init_vines(VINE *vine, int x, int y, int size, int img_id);
 void draw_vines(VINE *vines, int size);

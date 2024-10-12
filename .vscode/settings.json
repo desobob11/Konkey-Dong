@@ -3,6 +3,7 @@
         "image.h": "c",
         "player.h": "c",
         "block.h": "c",
-        "sdl.h": "c"
+        "sdl.h": "c",
+        "framebuffer.h": "c"
     }
 }

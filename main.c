@@ -6,7 +6,8 @@
  * 
 */
 
-
+#define SDL_MAIN_HANDLED
+#include "SDL2/include/SDL2/SDL.h"
 #include "framebuffer.h"
 #include "image.h"
 #include <stdio.h>
@@ -15,9 +16,8 @@
 #include "entities.h"
 #include "text.h"
 #include "backup.h"
-#define SDL_MAIN_HANDLED
-#include "SDL2/include/SDL2/SDL.h"
 #include <time.h>
+#include <windows.h>
 
 // macro definitions
 #define BAR_Y 325
@@ -74,7 +74,7 @@ PLAYER player;
  * Function for printing game over screen
  * 
 */
-void game_over() {
+void game_over(SDL_Window* wind) {
     // clear screen and print image
     quickClear();
     drawRect(0, 0, P_WIDTH, P_HEIGHT, BLACK, 1);
@@ -89,6 +89,7 @@ void game_over() {
                 return;
             }
         }
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
 }
@@ -98,7 +99,7 @@ void game_over() {
  * Function for printing victory screen
  * 
 */
-void win_game()
+void win_game(SDL_Window* wind)
 {
     // clear scrren and print victory screen 
     quickClear();
@@ -116,6 +117,7 @@ void win_game()
                 return;
             }
         }
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
 }
@@ -142,8 +144,7 @@ void clear_title_bar(int x, int y) {
  * 
 */
 void no_start() {
-    quickClear();
-    while(1);
+    exit(0);
 }
 
 
@@ -165,7 +166,7 @@ void close_pause_menu() {
  * Function to open pause menu
  * 
 */
-int pause_menu() {
+int pause_menu(SDL_Window* wind) {
     // variable denotes that start or exit is selected
     int restart_exit = 0;
 
@@ -173,7 +174,7 @@ int pause_menu() {
     drawImage(P_WIDTH / 4, P_HEIGHT / 4, PAUSE);
 
     // wait one second
-    sleep(1);
+    Sleep(1000);
 
     // wait for input
     while (1) {
@@ -190,7 +191,7 @@ int pause_menu() {
                     drawRect(EXIT_X, PAUSE_Y, EXIT_X + BAR_WIDTH, PAUSE_Y + BAR_HEIGHT, BLACK, 1);
                     drawRect(RESTART_X, PAUSE_Y, RESTART_X + BAR_WIDTH, PAUSE_Y + BAR_HEIGHT, WHITE, 1);
 
-                    // if pressed right or left, choose exit option
+                    // if pressed right or left, choose exit optifon
                     if (code == SDL_SCANCODE_A || code == SDL_SCANCODE_D)
                     {
                         restart_exit = 1;
@@ -223,6 +224,7 @@ int pause_menu() {
                 }
             }
         }
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
     return -2;
@@ -294,7 +296,7 @@ void init_player_level_3(PLAYER* player) {
 /*
     Title screen function
 */
-void title_screen() {
+void title_screen(SDL_Window* wind) {
     // start or exit selected
     int start_select = 0;
 
@@ -311,11 +313,12 @@ void title_screen() {
                 // is start selected and a pressed, continue into game loop
                 if (!start_select) {
                     draw_title_bar(START_X, BAR_Y);
-                    clear_title_bar(SELECT_X, BAR_Y); 
-                    if (code == SDL_SCANCODE_D) {
+                    clear_title_bar(SELECT_X, BAR_Y);
+                    if (code == SDL_SCANCODE_A || code == SDL_SCANCODE_D)
+                    {
                         start_select = 1;
                     }
-                    if (code == SDL_SCANCODE_A || code == SDL_SCANCODE_ESCAPE)
+                    if (code == SDL_SCANCODE_SPACE || code == SDL_SCANCODE_ESCAPE)
                     {
                         return;
                     }
@@ -329,16 +332,16 @@ void title_screen() {
                     {
                         start_select = 0;
                     }
-                    if (code == SDL_SCANCODE_A || code == SDL_SCANCODE_D)
+                    if (code == SDL_SCANCODE_SPACE || code == SDL_SCANCODE_ESCAPE)
                     {
-                        break;
+                        no_start();
                     }
                 }
             }
         }
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
-    no_start();
 
 }
 
@@ -348,7 +351,7 @@ void title_screen() {
  * 
  * 
 */
-int level_1() {
+int level_1(SDL_Window* wind) {
     // setup player state for level 1
     init_player_level_1(&player);
     draw_player(&player);
@@ -732,6 +735,7 @@ int level_1() {
             if (!player.canMoveDown)
                 break;
         }
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             // check for clicking pause menu
@@ -740,7 +744,7 @@ int level_1() {
                 if (code == SDL_SCANCODE_ESCAPE && !state.paused)
                 {
                     // run pause menu function, if result is not 0 exit level with fail code 0
-                    int pause_result = pause_menu();
+                    int pause_result = pause_menu(wind);
                     if (pause_result == 1)
                     {
                         return 0;
@@ -751,23 +755,30 @@ int level_1() {
                     }
                     time(&state.time_check);
                 }
-            }
+                else if (code == SDL_SCANCODE_SPACE) {
+                    player.doJumpLoop = 1;
+                } 
+            
             // UPDATE PLAYER POSITION AND REDRAW PLAYER
-            gravity(&player);
-            move_player(&player);
-            jump_player(&player);
+            move_player(&player, code);
         }
+    }
+    gravity(&player);
+    if (player.doJumpLoop)
+        jump_player(&player);
 
-        // reset collision detectors
-        player.canMoveDown = 1;
-        player.canClimbUp = 0;
-        player.canClimbDown = 0;
-        player.canMoveLeft = 1;
-        player.canMoveRight = 1;
-        player.playerCollidingTopBlock = 0;
-        colliding_top = 0;
-        player.canJump = 1;
-        SDL_Delay(1000 / 60);
+    // reset collision detectors
+    player.canMoveDown = 1;
+    player.canClimbUp = 0;
+    player.canClimbDown = 0;
+    player.canMoveLeft = 1;
+    player.canMoveRight = 1;
+    player.doJumpLoop = 0;
+    player.playerCollidingTopBlock = 0;
+    colliding_top = 0;
+    player.canJump = 1;
+    SDL_UpdateWindowSurface(wind);
+    SDL_Delay(1000 / 60);
     }
     // will never be reached put here for compiler warning purposes
     return 1;
@@ -780,7 +791,7 @@ int level_1() {
  * 
 */
 
-int level_3(){
+int level_3(SDL_Window* wind){
     // setup player andb state
     init_player_level_3(&player);
     draw_player(&player);
@@ -1190,27 +1201,31 @@ int level_3(){
                 }
             }
         }
-		
-		for (int i = 0; i < number_vines; ++i) {
-            for (int j = 0; j < allVines[i][0].array_size; ++j) {
-                if (collide_vine(&player, &allVines[i][j])) {
-                    player.canClimbUp = 1;
-                    player.canClimbDown = 1;
-                    player.canMoveDown = 0;
-                    player.canJump = 0;
-                    
-                }
-            }
-        }
-
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_KEYDOWN)
+            {
                 SDL_Scancode code = event.key.keysym.scancode;
+                for (int i = 0; i < number_vines; ++i)
+                {
+                    for (int j = 0; j < allVines[i][0].array_size; ++j)
+                    {
+                        if (collide_vine(&player, &allVines[i][j], code))
+                        {
+                            player.canClimbUp = 1;
+                            player.canClimbDown = 1;
+                            player.canMoveDown = 0;
+                            player.canJump = 0;
+                        }
+                    }
+                }
+
+
                 if (code == SDL_SCANCODE_ESCAPE && !state.paused)
                 {
                     // run pause menu function, if result is not 0 exit level with fail code 0
-                    int pause_result = pause_menu();
+                    int pause_result = pause_menu(wind);
                     if (pause_result == 1)
                     {
                         return 0;
@@ -1223,28 +1238,39 @@ int level_3(){
                     drawImage(clock.x, clock.y, CLOCK_SPRITE);
                     drawImage(goal.x, goal.y, GOAL);
                 }
-            }
+                else if (code == SDL_SCANCODE_SPACE) {
+                    player.doJumpLoop = 1;
+                }
             
+
             // UPDATE PLAYER POSITION AND REDRAW PLAYER
-            gravity(&player);
-            move_player(&player);
-            jump_player(&player);
+            move_player(&player, code);
+            }
+            if (player.doJumpLoop) {
+                jump_player(&player);
+            }
         }
-		
+        gravity(&player);
+        if (player.doJumpLoop)
+            jump_player(&player);
+        
+
         player.canMoveDown = 1;
         player.canClimbUp = 0;
         player.canClimbDown = 0;
         player.canMoveLeft = 1;
         player.canMoveRight = 1;
+        player.doJumpLoop = 0;
         player.playerCollidingTopBlock = 0;
         colliding_top = 0;
         player.canJump = 1;
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
 	return 1;
 }
 
-int level_2()
+int level_2(SDL_Window* wind)
 {
     // setup player state for level 1
     init_player_level_1(&player);
@@ -1601,28 +1627,33 @@ int level_2()
             }
         }
 
-        // Check and allow player to climb vines if they are in range
-        for (int i = 0; i < number_vines; ++i) {
-            for (int j = 0; j < allVines[i][0].array_size; ++j) {
-                if (collide_vine(&player, &allVines[i][j])) {
-                    player.canClimbUp = 1;
-                    player.canClimbDown = 1;
-                    player.canMoveDown = 0;
-                    player.canJump = 0;
-                    
-                }
-            }
-        }
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_KEYDOWN)
+            {
                 SDL_Scancode code = event.key.keysym.scancode;
+                // Check and allow player to climb vines if they are in range
+                for (int i = 0; i < number_vines; ++i)
+                {
+                    for (int j = 0; j < allVines[i][0].array_size; ++j)
+                    {
+                        if (collide_vine(&player, &allVines[i][j], code))
+                        {
+                            player.canClimbUp = 1;
+                            player.canClimbDown = 1;
+                            player.canMoveDown = 0;
+                            player.canJump = 0;
+                        }
+                    }
+                }
+
             
                 // PAUSE MENU CHECK
                 if (code == SDL_SCANCODE_ESCAPE && !state.paused)
                 {
                     // run pause menu function, if result is not 0 exit level with fail code 0
-                    int pause_result = pause_menu();
+                    int pause_result = pause_menu(wind);
                     if (pause_result == 1)
                     {
                         return 0;
@@ -1637,12 +1668,17 @@ int level_2()
                         drawImage(allClocks[i].x, allClocks[i].y, allClocks[i].img_id);
                     }
                 }
-            }
+                else if (code == SDL_SCANCODE_SPACE) {
+                    player.doJumpLoop = 1;
+                }
+            
             // UPDATE PLAYER POSITION AND REDRAW PLAYER
-            gravity(&player);
-            move_player(&player);
-            jump_player(&player);
+            move_player(&player, code);
+            }
         }
+        gravity(&player);
+        if (player.doJumpLoop)
+            jump_player(&player);
 
         // climb spiders up down
         for (int i = 0; i < number_enemies; ++i) {
@@ -1658,6 +1694,7 @@ int level_2()
         player.playerCollidingTopBlock = 0;
         colliding_top = 0;
         player.canJump = 1;
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
     // will never be reached put here for compiler warning purposes
@@ -1684,7 +1721,7 @@ void init_player_level_4(PLAYER *player)
     player->jumpLimit = 0;
 }
 
-int level_4()
+int level_4(SDL_Window* wind)
 {
     // setup player and state for level
     init_player_level_4(&player);
@@ -2065,34 +2102,33 @@ int level_4()
                 }
             }
         }
-
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-        // check for vine climbing
-        for (int i = 0; i < number_vines; ++i)
+        while (SDL_PollEvent(&event))
         {
-            for (int j = 0; j < allVines[i][0].array_size; ++j)
+            if (event.type == SDL_KEYDOWN)
             {
-                if (collide_vine(&player, &allVines[i][j]))
-                {
-                    player.canClimbUp = 1;
-                    player.canClimbDown = 1;
-                    player.canMoveDown = 0;
-                    player.canJump = 0;
-                }
-            }
-        }
-
-        // PAUSE MENU CHECK
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
                 SDL_Scancode code = event.key.keysym.scancode;
+                // check for vine climbing
+                for (int i = 0; i < number_vines; ++i)
+                {
+                    for (int j = 0; j < allVines[i][0].array_size; ++j)
+                    {
+                        if (collide_vine(&player, &allVines[i][j], code))
+                        {
+                            player.canClimbUp = 1;
+                            player.canClimbDown = 1;
+                            player.canMoveDown = 0;
+                            player.canJump = 0;
+                        }
+                    }
+                }
+
+
             
                 if (code == SDL_SCANCODE_ESCAPE && !state.paused)
                 {
                     // run pause menu function, if result is not 0 exit level with fail code 0
-                    int pause_result = pause_menu();
+                    int pause_result = pause_menu(wind);
                     if (pause_result == 1)
                     {
                         return 0;
@@ -2103,13 +2139,18 @@ int level_4()
                     }
                     time(&state.time_check);
                 }
-            }
+                else if (code == SDL_SCANCODE_SPACE) {
+                    player.doJumpLoop = 1;
+                }
+            
 
             // UPDATE PLAYER POSITION AND REDRAW PLAYER
-            gravity(&player);
-            move_player(&player);
-            jump_player(&player);
+            move_player(&player, code);
+            }
         }
+        gravity(&player);
+        if (player.doJumpLoop)
+            jump_player(&player);
 
         // move spiders
         climb_spider(&spider1);
@@ -2126,9 +2167,11 @@ int level_4()
         player.canClimbDown = 0;
         player.canMoveLeft = 1;
         player.canMoveRight = 1;
+        player.doJumpLoop = 0;
         player.playerCollidingTopBlock = 0;
         colliding_top = 0;
         player.canJump = 1;
+        SDL_UpdateWindowSurface(wind);
         SDL_Delay(1000 / 60);
     }
     return 1;
@@ -2176,8 +2219,6 @@ int main()
     state.restarted = 0;
 
     // Initialize GPIO controller, UART and framebuffer
-    Init_GPIO();
-    uart_init();
     init_framebuffer(surface);
 
     // level complete indicators
@@ -2195,7 +2236,7 @@ int main()
         level_three_done = 0;
         level_four_done = 0;
 
-        title_screen();
+        title_screen(wind);
 
 
         // if game not exited in title_screen()
@@ -2211,7 +2252,7 @@ int main()
             draw_bar();
 
             // get returned result from level 1's level loop / function
-            level_one_done = level_1();
+            level_one_done = level_1(wind);
     }
 
     // reset the backup frame buffer
@@ -2226,7 +2267,7 @@ int main()
     // if player lost all levels or time, game over and start game loop agaian
     if (level_one_done == -2)
     {
-            game_over();
+            game_over(wind);
             continue;
     }
     
@@ -2241,7 +2282,7 @@ int main()
         quickClear();
         draw_bar();
 
-        level_two_done = level_2();
+        level_two_done = level_2(wind);
      }
      init_backup();
      if (level_two_done == -1)
@@ -2249,7 +2290,7 @@ int main()
         continue;
      }
      if (level_two_done == -2) {
-        game_over();
+        game_over(wind);
         continue;
      }
      
@@ -2260,7 +2301,7 @@ int main()
         quickClear();
         draw_bar();
 
-        level_three_done = level_3();
+        level_three_done = level_3(wind);
      }
      init_backup();
      if (level_three_done == -1)
@@ -2269,8 +2310,8 @@ int main()
      }
      if (level_three_done == -2)
      {
-        game_over();
-        continue;
+         game_over(wind);
+         continue;
      }
      
      
@@ -2281,7 +2322,7 @@ int main()
         quickClear();
         draw_bar();
 
-        level_four_done = level_4();
+        level_four_done = level_4(wind);
      }
      init_backup();
      if (level_four_done == -1)
@@ -2290,15 +2331,15 @@ int main()
      }
      if (level_four_done == -2)
      {
-        game_over();
-        continue;
+         game_over(wind);
+         continue;
      }
      
      
     // if beat all levels, show win game and handle player and go back
     // to main screen if player clicks a button
-   win_game();
-   SDL_Delay(1000 / 60);
+     win_game(wind);
+     SDL_Delay(1000 / 60);
     }
 }
 

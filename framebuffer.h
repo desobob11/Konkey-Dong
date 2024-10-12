@@ -7,7 +7,6 @@
 #define FRAMEBUFFER_H_
 #include "image.h"
 #include "block.h"
-#include "backup.h"
 #include "SDL2/include/SDL2/SDL.h"
 #include <stdint.h>
 
@@ -15,7 +14,7 @@
 #define P_WIDTH 1280
 
 extern uint32_t* framebuffer;   // should these be globals? Probably bad for performance...
-extern SDL_Surface f_surface;
+extern SDL_Surface* f_surface;
 extern unsigned int pitch;
 void init_framebuffer(SDL_Surface* surface);
 void drawPixel(int x, int y, uint32_t color);

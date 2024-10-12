@@ -8,6 +8,7 @@
 
 #include "image.h"
 #include "framebuffer.h"
+#include <stdint.h>
 
 extern uint32_t backbuffer[1280][720];
 

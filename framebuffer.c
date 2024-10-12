@@ -15,7 +15,7 @@
 
 unsigned int width, height, pitch;
 uint32_t* framebuffer;
-SDL_Surface *f_surface; // should these be globals? Probably bad for performance...
+SDL_Surface* f_surface; // should these be globals? Probably bad for performance...
 
 
 
@@ -24,7 +24,7 @@ void init_framebuffer(SDL_Surface* surface)
     f_surface = surface;
     framebuffer = surface->pixels;
     SDL_LockSurface(f_surface);
-    SDL_memset(framebuffer, 0x00000000, f_surface->h * f_surface->pitch);
+    SDL_memset(framebuffer, 0x00000000, f_surface->h * f_surface->w);
     SDL_UnlockSurface(f_surface);
 }
 
@@ -36,14 +36,18 @@ void init_framebuffer(SDL_Surface* surface)
 // assumes surface is unlocked
 void drawPixel(int x, int y, uint32_t color)
 {
-    uint32_t offset = (y * f_surface->pitch) + x;
+
+    
+    SDL_LockSurface(f_surface);
+    uint32_t offset = (y * f_surface->w) + x;
     framebuffer[offset] = color; // deref pixel at address, store color code in it!
+    SDL_UnlockSurface(f_surface);
 }
 
 void fillScreen(uint32_t color)
 {
     SDL_LockSurface(f_surface);
-    SDL_memset(framebuffer, color, f_surface->h * f_surface->pitch);
+    SDL_memset(framebuffer, color, f_surface->h * f_surface->w);
     SDL_UnlockSurface(f_surface);
 }
 
@@ -73,7 +77,7 @@ void quickClear() {
     SDL_LockSurface(f_surface);
     for (int i = 0; i < P_HEIGHT; ++i) {
         for (int j = 0; j  < P_WIDTH; ++j) {
-                uint32_t offs = (i * f_surface->pitch) + j;
+                uint32_t offs = (i * f_surface->w) + j;
                 if (framebuffer[offs] != 0x00000000) {      // needed to have optimized drawing on PI, maybe not so much now
                     framebuffer[offs] = 0x00000000;
                 }
