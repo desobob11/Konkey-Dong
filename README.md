@@ -10,7 +10,7 @@
   <a href="https://github.com/desobob11/SDLDoom">
   </a>
 
-  <h3 align="center">Konkey Dong</h3>
+  <h3 align="center">Konkey Dong :monkey_face:</h3>
 
   <p align="center">
     A retro platformer game, themed after our favorite copyrighted hero! 
@@ -23,7 +23,7 @@
 
 ## About The Project
 
- Dodge falling boulders, :runner: climb jungle vines, dodge spiders, and avoid pools of lava in this charming adventure!
+ Dodge falling boulders, :runner: climb jungle vines :palm_tree:, dodge insects :beetle:, and avoid pools of lava :fire: in this charming adventure!
  
   This game was originally developed for the Raspberry PI as am embedded systems project. A peripheral was added to a Raspberry PI to bypass the OS and allow access to the hardware directly.
 
