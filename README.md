@@ -23,11 +23,13 @@
 
 ## About The Project
 
- Dodge falling boulders, climb jungle vines, dodge spiders, and avoid pools of lava in this charming adventure!
+ Dodge falling boulders, :runner: climb jungle vines, dodge spiders, and avoid pools of lava in this charming adventure!
  
   This game was originally developed for the Raspberry PI as am embedded systems project. A peripheral was added to a Raspberry PI to bypass the OS and allow access to the hardware directly.
 
   I am now in the process of porting this game to Windows/Mac/Linux with the help of SDL2 for managing windows and processing user inputs! This current version is buggy at the moment, but I hope to have the port finished soon.
+
+  The port from the baremetal Raspberry PI entails changing all user inputs from GPIO code intended for the Pi's hardware, and into SDL2 calls. Luckily, the logic for writing pixel's to the Pi's framebuffer translated very smoothly to writing to an SDL2 surface's framebuffer instead! As a result, the graphics on this Windows version are identical to the baremetal version. 
 
 ### Built With
 
